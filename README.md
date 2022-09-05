@@ -1,1 +1,2 @@
-# 2DGP
+2022 2DGP Course Git Server
+
