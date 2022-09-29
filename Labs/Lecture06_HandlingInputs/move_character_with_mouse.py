@@ -1,25 +1,23 @@
 from pico2d import *
 
-KPU_WIDTH, KPU_HEIGHT = 1280, 1024
-
+TUK_WIDTH, TUK_HEIGHT = 1280, 1024
 
 def handle_events():
     # fill here
     pass
 
-
-# fill here
-kpu_ground = load_image('KPU_GROUND.png')
+open_canvas(TUK_WIDTH, TUK_HEIGHT)
+tuk_ground = load_image('TUK_GROUND.png')
 character = load_image('animation_sheet.png')
 
 running = True
-x, y = KPU_WIDTH // 2, KPU_HEIGHT // 2
+x, y = TUK_WIDTH // 2, TUK_HEIGHT // 2
 frame = 0
 hide_cursor()
 
 while running:
     clear_canvas()
-    kpu_ground.draw(KPU_WIDTH // 2, KPU_HEIGHT // 2)
+    tuk_ground.draw(TUK_WIDTH // 2, TUK_HEIGHT // 2)
     character.clip_draw(frame * 100, 100 * 1, 100, 100, x, y)
     update_canvas()
     frame = (frame + 1) % 8
