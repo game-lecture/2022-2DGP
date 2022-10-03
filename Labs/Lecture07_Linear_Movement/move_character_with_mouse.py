@@ -23,7 +23,6 @@ open_canvas(TUK_WIDTH, TUK_HEIGHT)
 # fill here
 TUK_ground = load_image('TUK_GROUND.png')
 character = load_image('animation_sheet.png')
-arrow = load_image('hand_arrow.png')
 
 running = True
 x, y = TUK_WIDTH // 2, TUK_HEIGHT // 2
@@ -33,7 +32,6 @@ hide_cursor()
 while running:
     clear_canvas()
     TUK_ground.draw(TUK_WIDTH // 2, TUK_HEIGHT // 2)
-    arrow.draw(x, y)
     character.clip_draw(frame * 100, 100 * 1, 100, 100, x, y)
     update_canvas()
     frame = (frame + 1) % 8
