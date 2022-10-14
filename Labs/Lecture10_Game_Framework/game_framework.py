@@ -39,8 +39,15 @@ class TestGameState:
 
 
 running = None
-stack = None
+stack = []
 
+
+
+def get_prev_state():
+    try:
+        return stack[-2]
+    except:
+        return None
 
 def change_state(state):
     global stack
@@ -82,12 +89,23 @@ def quit():
     running = False
 
 
+# pree fill statck with previous states
+def fill_states(*states):
+    for state in states:
+        stack.append(state)
+
 def run(start_state):
     global running, stack
     running = True
-    stack = [start_state]
-    start_state.enter()
-    while (running):
+
+    # prepare previous states if any
+    for state in stack:
+        state.enter()
+        state.pause()
+
+    stack.append(start_state)
+    stack[-1].enter()
+    while running:
         stack[-1].handle_events()
         stack[-1].update()
         stack[-1].draw()
