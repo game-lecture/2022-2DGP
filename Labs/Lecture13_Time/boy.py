@@ -134,7 +134,7 @@ class Boy:
             self.cur_state.enter(self, event)
 
     def draw(self):
-        self.cur_state.draw(self
+        self.cur_state.draw(self)
 
     def add_event(self, event):
         self.event_que.insert(0, event)
