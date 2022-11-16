@@ -19,16 +19,6 @@ def remove_object(o):
     raise ValueError('Trying destroy non existing object')
 
 
-def remove_object(o):
-    for layer in objects:
-        try:
-            layer.remove(o)
-            del o
-            return
-        except:
-            pass
-    raise ValueError('Trying destroy non existing object')
-
 
 def all_objects():
     for layer in objects:
