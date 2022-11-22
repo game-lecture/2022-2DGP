@@ -54,16 +54,16 @@ def add_collision_pairs(a, b, group):
         collision_group[group] = [ [], [] ] # list of list : list pair
 
     if a:
-        if type(b) is list:
-            collision_group[group][1] += b
+        if type(a) is list:
+            collision_group[group][1] += a
         else:
-            collision_group[group][1].append(b)
+            collision_group[group][1].append(a)
 
     if b:
-        if type(a) is list:
-            collision_group[group][0] += a
+        if type(b) is list:
+            collision_group[group][0] += b
         else:
-            collision_group[group][0].append(a)
+            collision_group[group][0].append(b)
 
     print(collision_group)
 
@@ -82,5 +82,10 @@ def remove_collision_object(o):
             pairs[0].remove(o)
         if o in pairs[1]:
             pairs[1].remove(o)
+
+
+def update():
+    for game_object in all_objects():
+        game_object.update()
 
 

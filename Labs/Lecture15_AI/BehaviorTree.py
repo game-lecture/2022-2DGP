@@ -34,20 +34,29 @@ class Node:
             self.children.append(child)
 
 
-class SelectorNode(Node):
-    def __init__(self, name):
-        self.children = []
+class Selector(Node):
+    def __init__(self, name, *nodes):
+        self.children = list(nodes)
         self.name = name
         self.prev_running_pos = 0
 
+    def reset(self):
+        self.prev_running_pos = 0
+        for node in self.children:
+            node.reset()
+
+
     def run(self):
-        for pos in range(self.prev_running_pos, len(self.children)):
+        for pos in range(0, len(self.children)):
             result = self.children[pos].run()
             if BehaviorTree.RUNNING == result:
                 self.prev_running_pos = pos
                 return BehaviorTree.RUNNING
             elif BehaviorTree.SUCCESS == result:
                 self.prev_running_pos = 0
+                # now success, so right nodes (less import nodes) should be reset
+                for node in self.children[pos+1:]:
+                    node.reset()
                 return BehaviorTree.SUCCESS
         self.prev_running_pos = 0
         return BehaviorTree.FAIL
@@ -60,11 +69,17 @@ class SelectorNode(Node):
             child.print()
         unindent()
 
-class SequenceNode(Node):
-    def __init__(self, name):
-        self.children = []
+class Sequence(Node):
+    def __init__(self, name, *nodes):
+        self.children = list(nodes)
         self.name = name
         self.prev_running_pos = 0
+
+    def reset(self):
+        self.prev_running_pos = 0
+        for node in self.children:
+            node.reset()
+
 
     def run(self):
         for pos in range(self.prev_running_pos, len(self.children)):
@@ -87,10 +102,13 @@ class SequenceNode(Node):
         unindent()
 
 
-class LeafNode(Node):
+class Leaf(Node):
     def __init__(self, name, func):
         self.name = name
         self.func = func
+
+    def reset(self):
+        pass
 
     def add_child(self, child):
         print("ERROR: you cannot add child node to leaf node")

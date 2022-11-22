@@ -1,7 +1,15 @@
 import game_framework
+
+import server
+
+
 from pico2d import *
+from ball import Ball
+
+
 
 import game_world
+import play_state as main_state
 
 # Boy Run Speed
 PIXEL_PER_METER = (10.0 / 0.3)  # 10 pixel 30 cm
@@ -37,6 +45,7 @@ key_event_table = {
 
 class WalkingState:
 
+    @staticmethod
     def enter(boy, event):
         if event == RIGHTKEY_DOWN:
             boy.x_velocity += RUN_SPEED_PPS
@@ -58,9 +67,12 @@ class WalkingState:
 
 
 
+    @staticmethod
     def exit(boy, event):
-        pass
+        if event == SPACE:
+            boy.fire_ball()
 
+    @staticmethod
     def do(boy):
         boy.frame = (boy.frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % FRAMES_PER_ACTION
         boy.x += boy.x_velocity * game_framework.frame_time
@@ -68,6 +80,7 @@ class WalkingState:
         boy.x = clamp(25, boy.x, 1280 - 25)
         boy.y = clamp(25, boy.y, 1024 - 25)
 
+    @staticmethod
     def draw(boy):
         if boy.x_velocity > 0:
             boy.image.clip_draw(int(boy.frame) * 100, 100, 100, 100, boy.x, boy.y)
@@ -89,6 +102,14 @@ class WalkingState:
                 else:
                     boy.image.clip_draw(int(boy.frame) * 100, 200, 100, 100, boy.x, boy.y)
 
+#next_state_table = {
+#    IdleState: {RIGHTKEY_UP: RunState, LEFTKEY_UP: RunState, RIGHTKEY_DOWN: RunState, LEFTKEY_DOWN: RunState,
+#                UPKEY_UP: RunState, UPKEY_DOWN: RunState, DOWNKEY_UP: RunState, DOWNKEY_DOWN: RunState,
+#                SPACE: IdleState},
+#    RunState:  {RIGHTKEY_UP: IdleState, LEFTKEY_UP: IdleState, RIGHTKEY_DOWN: IdleState, LEFTKEY_DOWN: IdleState,
+#                UPKEY_UP: IdleState, UPKEY_DOWN: IdleState, DOWNKEY_UP: IdleState, DOWNKEY_DOWN: IdleState,
+#                SPACE: IdleState},
+#}
 
 next_state_table = {
     WalkingState: {RIGHTKEY_UP: WalkingState, LEFTKEY_UP: WalkingState, RIGHTKEY_DOWN: WalkingState, LEFTKEY_DOWN: WalkingState,
@@ -110,16 +131,23 @@ class Boy:
         self.event_que = []
         self.cur_state = WalkingState
         self.cur_state.enter(self, None)
+        self.hp = 0
 
     def get_bb(self):
         # fill here
         return self.x - 50, self.y - 50, self.x + 50, self.y + 50
 
 
+    def fire_ball(self):
+        ball = Ball(self.x, self.y, self.dir * RUN_SPEED_PPS * 10)
+        game_world.add_object(ball, 1)
+
+
     def add_event(self, event):
         self.event_que.insert(0, event)
 
     def update(self):
+
         self.cur_state.do(self)
         if len(self.event_que) > 0:
             event = self.event_que.pop()
@@ -127,9 +155,10 @@ class Boy:
             self.cur_state = next_state_table[self.cur_state][event]
             self.cur_state.enter(self, event)
 
+
     def draw(self):
         self.cur_state.draw(self)
-        self.font.draw(self.x - 60, self.y + 50, '(Time: %3.2f)' % get_time(), (255, 255, 0))
+        self.font.draw(self.x - 60, self.y + 50, '%5d' % self.hp, (255, 255, 0))
         #fill here
         draw_rectangle(*self.get_bb())
         #debug_print('Velocity :' + str(self.velocity) + '  Dir:' + str(self.dir) + ' Frame Time:' + str(game_framework.frame_time))
@@ -139,3 +168,7 @@ class Boy:
             key_event = key_event_table[(event.type, event.key)]
             self.add_event(key_event)
 
+
+    def handle_collision(self, other, group):
+        if 'boy:ball' == group:
+            self.hp += 100
